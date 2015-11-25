@@ -1,5 +1,6 @@
 var amqp= require('amqplib');
-var open = require('amqplib').connect('amqp://localhost')
+var config = require('config');
+var open = require('amqplib').connect(config.amqurl)
 var request = require('superagent');
 
 open.then(function(conn){
