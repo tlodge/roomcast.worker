@@ -1,0 +1,8 @@
+{
+  "name": "roomcast.worker",
+  "version": "0.0.1",
+  "dependencies": {
+    "amqplib": "^0.3.2",
+    "superagent": "^1.2.0"
+  }
+}
