@@ -22,7 +22,7 @@ open.then(function(conn){
                 request.post(endpoint.url)
   		                 .send(endpoint.parameters)
   		                 .set('Accept', 'application/json')
-  		                 .type('json')
+  		                 .type(endpoint.format || 'json')
   		                 .end(function(err, res){
                   			if (err){
                   				console.log(err);
