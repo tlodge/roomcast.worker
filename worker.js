@@ -1,9 +1,19 @@
 var amqp= require('amqplib');
 var config = require('./config');
-var open = require('amqplib').connect(config.amqpurl)
+var ampqlib = require('amqplib');
 var request = require('superagent');
 
-open.then(function(conn){
+
+var connect = function(){
+   ampqlib.connect(config.amqpurl).then(function(conn){
+      listen(conn);
+   },function(err){
+      console.log("hmm--- errror!!!");
+      setTimeout(connect, 5000);
+   });
+}
+
+var listen = function(conn){
   console.log("OPENED");
   process.once('SIGINT', function(){conn.close();});
 
@@ -20,16 +30,16 @@ open.then(function(conn){
                 console.log(endpoint);
                 //'/red/posttest'
                 request.post(endpoint.url)
-  		                 .send(endpoint.parameters)
-  		                 .set('Accept', 'application/json')
-  		                 .type(endpoint.format || 'json')
-  		                 .end(function(err, res){
-                  			if (err){
-                  				console.log(err);
-                  			}else{
-                  				return "done";
-                  	 		}
-  	 	          });
+                       .send(endpoint.parameters)
+                       .set('Accept', 'application/json')
+                       .type(endpoint.format || 'json')
+                       .end(function(err, res){
+                        if (err){
+                          console.log(err);
+                        }else{
+                          return "done";
+                        }
+                });
           }, {noAck: true});
       });
 
@@ -38,4 +48,5 @@ open.then(function(conn){
 
       });
   });
-}).then(null, console.warn);
+}
+connect();
