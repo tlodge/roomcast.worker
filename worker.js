@@ -20,7 +20,7 @@ var connect = function(){
 }
 
 var listen = function(conn){
-  console.log("startin to listen");
+  console.log("starting to listen");
   process.once('SIGINT', function(){
         console.log("seen a SIGINT,closing connection and trying reconnect");
 	conn.close();
