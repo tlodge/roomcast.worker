@@ -3,14 +3,20 @@ var config = require('./config');
 var ampqlib = require('amqplib');
 var request = require('superagent');
 
+const defaultHeaders = {Accept: 'application/json'};
 
 var connect = function(){
+  try{
    ampqlib.connect(config.amqpurl).then(function(conn){
       listen(conn);
    },function(err){
       console.log("hmm--- errror!!!");
       setTimeout(connect, 5000);
    });
+  }catch(err){
+      console.log("error connecting - will try again!");
+      setTimeout(connect, 5000);
+  }
 }
 
 var listen = function(conn){
@@ -24,14 +30,15 @@ var listen = function(conn){
 
           return ch.consume('tasks', function(msg){
                 console.log("[x] received object '%s'", msg.content);
-
+                console.log("message headers are");
+                console.log(msg.headers);
 
                 var endpoint = JSON.parse(msg.content);//{mymessage:'hello'};
-                console.log(endpoint);
-                //'/red/posttest'
+              
+                const headers = msg.headers || defaultHeaders;
                 request.post(endpoint.url)
                        .send(endpoint.parameters)
-                       .set('Accept', 'application/json')
+                       .set(headers)
                        .type(endpoint.format || 'json')
                        .end(function(err, res){
                         if (err){
