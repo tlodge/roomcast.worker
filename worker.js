@@ -20,8 +20,12 @@ var connect = function(){
 }
 
 var listen = function(conn){
-  console.log("OPENED");
-  process.once('SIGINT', function(){conn.close();});
+  console.log("startin to listen");
+  process.once('SIGINT', function(){
+        console.log("seen a SIGINT,closing connection and trying reconnect");
+	conn.close();
+        setTimeout(connect, 5000);
+  });
 
   return conn.createChannel().then(function(ch){
       var ok = ch.assertQueue('tasks');
@@ -53,6 +57,9 @@ var listen = function(conn){
       return ok.then(function(_consumeOk){
             console.log(" [*] waiting for messages.  To exit press ctrl-c");
 
+      },function(err){
+         console.log("error, reconnecting in 5");
+	 setTimeout(connect, 5000);		
       });
   });
 }
