@@ -1,5 +1,5 @@
 var amqp= require('amqplib');
-var config = require('./config');
+var config = require('./conf/config');
 var ampqlib = require('amqplib');
 var request = require('superagent');
 
