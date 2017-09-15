@@ -1,13 +1,25 @@
 var amqp= require('amqplib');
-var config = require('./conf/config');
 var ampqlib = require('amqplib');
 var request = require('superagent');
+var path = require('path');
+var fs = require("fs");
+var commandLineArgs = require('command-line-args');
 
-const defaultHeaders = {Accept: 'application/json'};
+
+var optionDefinitions = [
+  { name: 'config',  alias: "f", type: String, multiple: false, defaultOption: true, defaultValue:path.join(__dirname, './conf/config.json')},
+]
+//var configFile = process.argv.length > 2 ? 
+var options = commandLineArgs(optionDefinitions);
+var configFile = options.config;
+var config = JSON.parse(fs.readFileSync(configFile).toString());
+console.log("running with config",config);
+
+var defaultHeaders = {Accept: 'application/json'};
 
 var connect = function(){
   try{
-   ampqlib.connect(config.amqpurl).then(function(conn){
+      ampqlib.connect(config.amqpurl).then(function(conn){
       listen(conn);
    },function(err){
       console.log("hmm--- errror!!!");
@@ -39,7 +51,7 @@ var listen = function(conn){
 
                 var endpoint = JSON.parse(msg.content);//{mymessage:'hello'};
               
-                const headers = msg.headers || defaultHeaders;
+                var headers = msg.headers || defaultHeaders;
                 request.post(endpoint.url)
                        .send(endpoint.parameters)
                        .set(headers)
