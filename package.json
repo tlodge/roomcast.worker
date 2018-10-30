@@ -6,7 +6,8 @@
     "start": "node worker.js",
     "dockerise": "docker build -t buttonkit_worker .",
     "push": "docker tag buttonkit_worker tlodge/worker && docker push tlodge/worker",
-    "deploy": "npm run dockerise && npm run push"
+    "deploy": "npm run dockerise && npm run push",
+    "local": "npm run dockerise && docker tag buttonkit_worker tlodge/worker"
   },
   "dependencies": {
     "amqplib": "^0.3.2",
