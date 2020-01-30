@@ -5,6 +5,31 @@ var fs = require("fs");
 var commandLineArgs = require('command-line-args');
 
 
+
+const replaceurl = (url)=>{
+  const stripped = url.replace("https://", "").replace("http://", "");
+  const items = stripped.split(".");
+  const sitename = items[0] ? items[0] : "";
+  const kubservice = process.env[`BUTTONKIT_SERVICE_${sitename.toUpperCase()}_SERVICE_HOST`];
+
+  if (kubservice){
+    return  url.replace(`https://${sitename}.buttonkit.com`, `${kubservice}:8080`).replace(`http://${sitename}.buttonkit.com`, `${kubservice}:8080`); 
+  }
+  return url;
+}
+
+const resolveservice = (url)=>{
+  try{
+      if (url.includes(".buttonkit.com")){
+          return replaceurl(url);
+      }
+      return url;
+  }catch(err){
+      return url;
+  }
+}
+
+
 var optionDefinitions = [
   { name: 'config', alias: "f", type: String, multiple: false, defaultOption: true, defaultValue: path.join(__dirname, './conf/config.json') },
 ]
@@ -26,6 +51,7 @@ var connect = function () {
     ampqlib.connect(config.amqpurl).then(function (conn) {
       listen(conn);
     }, function (err) {
+      console.log(err);
       reconnect();
     });
   } catch (err) {
@@ -48,9 +74,16 @@ var listen = function (conn) {
     const post = (msg) => {
       console.log("[x] received object '%s'", msg.content);
       var endpoint = JSON.parse(msg.content);//{mymessage:'hello'};
-      var headers = msg.headers || defaultHeaders;
+      var headers = endpoint.headers || defaultHeaders;
 
-      request.post(endpoint.url)
+      /*const url = Object.keys(replacements).reduce(function (acc, key){
+          const value = replacements[key];
+          return acc.replace(key,value);
+      }, endpoint.url);*/
+
+      const _url = resolveservice(endpoint.url);
+
+      request.post(_url)
         .send(endpoint.parameters)
         .set(headers)
         .type(endpoint.format || 'json')
