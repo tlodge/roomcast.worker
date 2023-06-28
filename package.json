@@ -15,7 +15,7 @@
   "dependencies": {
     "amqplib": "^0.3.2",
     "command-line-args": "^4.0.7",
-    "semver": "^7.1.1",
+    "semver": "^7.5.2",
     "superagent": "^1.2.0"
   }
 }
